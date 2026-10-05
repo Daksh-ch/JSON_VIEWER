@@ -1,0 +1,1649 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>JSON Viewer — Format, Search & Explore Large JSON Online</title>
+    <meta
+      name="description"
+      content="Fast, private JSON viewer. Beautify, minify, search nested paths and explore huge JSON files in your browser. Nothing is uploaded."
+    />
+    <meta name="theme-color" content="#0a0a0f" />
+    <meta
+      property="og:title"
+      content="JSON Viewer — fast, private, handles huge files"
+    />
+    <meta
+      property="og:description"
+      content="Beautify, minify and explore large JSON with nested path search. 100% client-side."
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src blob:; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23d63aff'/%3E%3Ctext x='16' y='22' font-size='16' font-family='monospace' font-weight='700' text-anchor='middle' fill='white'%3E%7B%7D%3C/text%3E%3C/svg%3E"
+    />
+    <style>
+      :root {
+        --bg: #0a0a0f;
+        --pn: #12121a;
+        --pn2: #171722;
+        --bd: #262634;
+        --fg: #ececf3;
+        --mu: #8a8aa3;
+        --mg: #d63aff;
+        --pk: #fb015b;
+        --cy: #00b9f1;
+        --am: #ffb454;
+        --sl: #1e1b2e;
+        --ht: #4a3a00;
+        --er: #ff5c7a;
+        --ok: #3ddc97;
+        --sans:
+          ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+          "Noto Sans", Helvetica, Arial, sans-serif;
+        --mono:
+          ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas,
+          "Liberation Mono", monospace;
+        box-sizing: border-box;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      :root[data-theme="light"] {
+        --bg: #f6f6fa;
+        --pn: #fff;
+        --pn2: #f1f1f7;
+        --bd: #dcdce8;
+        --fg: #15151f;
+        --mu: #6b6b84;
+        --mg: #a21fd0;
+        --pk: #d0014e;
+        --cy: #0079a8;
+        --am: #a85d00;
+        --sl: #efe6fb;
+        --ht: #fff0a6;
+        --er: #d3153a;
+        --ok: #0f9c63;
+      }
+      html {
+        height: 100%;
+        scroll-padding-top: env(safe-area-inset-top, 0px);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: var(--bg);
+        color: var(--fg);
+        font: 13px/1.45 var(--sans);
+        -webkit-font-smoothing: antialiased;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--bd);
+      }
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: -0.01em;
+      }
+      .logo i {
+        font: 700 13px var(--mono);
+        font-style: normal;
+        background: linear-gradient(135deg, var(--mg), var(--pk));
+        color: #fff;
+        border-radius: 8px;
+        padding: 4px 7px;
+      }
+      .tag {
+        color: var(--mu);
+        font-size: 12px;
+      }
+      .sp {
+        flex: 1;
+      }
+      main {
+        flex: 1;
+        min-height: 0;
+        display: grid;
+        grid-template-columns: 5fr 7fr;
+        gap: 12px;
+        padding: 12px 16px;
+      }
+      .col {
+        display: grid;
+        grid-template-rows: minmax(0, 1.25fr) minmax(0, 1fr);
+        gap: 12px;
+        min-height: 0;
+        min-width: 0;
+      }
+      .card {
+        background: var(--pn);
+        border: 1px solid var(--bd);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        min-width: 0;
+        overflow: hidden;
+      }
+      .ch {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--bd);
+        background: var(--pn2);
+      }
+      .ch h2 {
+        margin: 0;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: var(--mu);
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-right: auto;
+      }
+      .ch h2:before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--c, var(--mg));
+      }
+      button,
+      select,
+      input[type="search"],
+      input[type="text"] {
+        font: inherit;
+        color: var(--fg);
+        background: var(--pn);
+        border: 1px solid var(--bd);
+        border-radius: 8px;
+        padding: 5px 10px;
+        outline: 0;
+      }
+      button {
+        cursor: pointer;
+        transition:
+          border-color 0.15s,
+          background 0.15s;
+      }
+      button:hover {
+        border-color: var(--mg);
+      }
+      button.pri {
+        background: linear-gradient(135deg, var(--mg), var(--pk));
+        border-color: transparent;
+        color: #fff;
+        font-weight: 600;
+      }
+      button.on {
+        border-color: var(--cy);
+        color: var(--cy);
+      }
+      :focus-visible {
+        outline: 2px solid var(--cy);
+        outline-offset: 1px;
+      }
+      label.ck {
+        display: inline-flex;
+        gap: 5px;
+        align-items: center;
+        color: var(--mu);
+        cursor: pointer;
+      }
+      #ta {
+        flex: 1;
+        min-height: 0;
+        resize: none;
+        border: 0;
+        padding: 12px;
+        background: transparent;
+        color: var(--fg);
+        font: 12.5px/1.55 var(--mono);
+        outline: 0;
+        white-space: pre;
+        tab-size: 2;
+      }
+      #err {
+        padding: 7px 12px;
+        border-top: 1px solid var(--bd);
+        color: var(--er);
+        font: 12px var(--mono);
+        min-height: 30px;
+      }
+      #err.ok {
+        color: var(--ok);
+      }
+      .sb {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--bd);
+      }
+      #q {
+        flex: 1;
+        min-width: 0;
+        font-family: var(--mono);
+        font-size: 12.5px;
+      }
+      #q:focus {
+        border-color: var(--cy);
+      }
+      #cnt {
+        color: var(--mu);
+        font: 12px var(--mono);
+        min-width: 54px;
+        text-align: center;
+      }
+      #vp {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        position: relative;
+        outline: 0;
+      }
+      #sp {
+        position: relative;
+      }
+      #rows {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        font: 12.5px var(--mono);
+      }
+      .r {
+        height: 26px;
+        line-height: 26px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        border-left: 2px solid transparent;
+        padding-right: 10px;
+        cursor: default;
+      }
+      .r:hover {
+        background: var(--pn2);
+      }
+      .r.pin {
+        background: var(--sl);
+        border-left-color: var(--mg);
+      }
+      .r.hit .k {
+        background: var(--ht);
+        border-radius: 3px;
+        box-shadow: 0 0 0 2px var(--ht);
+      }
+      .r.cur .k {
+        outline: 1px solid var(--cy);
+      }
+      .tg {
+        display: inline-block;
+        width: 14px;
+        color: var(--mu);
+        text-align: center;
+        cursor: pointer;
+        user-select: none;
+      }
+      .k {
+        color: var(--cy);
+      }
+      .s {
+        color: var(--mg);
+      }
+      .n {
+        color: var(--am);
+      }
+      .b {
+        color: var(--pk);
+      }
+      .z,
+      .dim {
+        color: var(--mu);
+      }
+      .empty {
+        padding: 40px 20px;
+        text-align: center;
+        color: var(--mu);
+        font: 13px var(--sans);
+      }
+      .tabs button {
+        border: 0;
+        background: transparent;
+        color: var(--mu);
+        border-radius: 6px;
+        padding: 3px 8px;
+      }
+      .tabs button.on {
+        color: var(--fg);
+        background: var(--sl);
+      }
+      .pane {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        padding: 10px 12px;
+      }
+      .crumbs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 3px;
+        align-items: center;
+        font: 12px var(--mono);
+        margin-bottom: 10px;
+      }
+      .cr {
+        padding: 1px 7px;
+        border-radius: 6px;
+        background: var(--pn2);
+        border: 1px solid var(--bd);
+        cursor: pointer;
+        color: var(--cy);
+      }
+      .cr:hover {
+        border-color: var(--mg);
+      }
+      .sep {
+        color: var(--mu);
+      }
+      .meta {
+        display: grid;
+        grid-template-columns: 72px 1fr;
+        gap: 3px 10px;
+        margin-bottom: 10px;
+      }
+      .meta > :nth-child(odd) {
+        color: var(--mu);
+      }
+      .meta code {
+        font: 12px var(--mono);
+        word-break: break-all;
+      }
+      .acts {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+      .val {
+        white-space: pre-wrap;
+        word-break: break-word;
+        font: 12px/1.5 var(--mono);
+        margin: 0;
+        padding: 10px;
+        background: var(--pn2);
+        border: 1px solid var(--bd);
+        border-radius: 8px;
+        max-height: 100%;
+        overflow: auto;
+      }
+      .res {
+        padding: 4px 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font: 12px var(--mono);
+      }
+      .res:hover {
+        background: var(--sl);
+      }
+      .hint {
+        color: var(--mu);
+        font-size: 12px;
+      }
+      footer {
+        display: flex;
+        gap: 12px;
+        padding: 6px 16px;
+        border-top: 1px solid var(--bd);
+        color: var(--mu);
+        font-size: 12px;
+        position: relative;
+      }
+      #st.busy:before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: -1px;
+        height: 2px;
+        width: 30%;
+        background: linear-gradient(90deg, var(--mg), var(--cy));
+        animation: bz 1s infinite linear;
+      }
+      @keyframes bz {
+        from {
+          left: -30%;
+        }
+        to {
+          left: 100%;
+        }
+      }
+      body.drag:after {
+        content: "Drop JSON file to open";
+        position: fixed;
+        inset: 0;
+        background: #000a;
+        display: grid;
+        place-items: center;
+        font-size: 22px;
+        color: #fff;
+        z-index: 9;
+        border: 3px dashed var(--mg);
+      }
+      @media (max-width: 900px) {
+        main {
+          grid-template-columns: 1fr;
+          overflow: auto;
+          grid-auto-rows: minmax(380px, auto);
+        }
+        .col {
+          grid-template-rows: 480px 380px;
+        }
+        .tag {
+          display: none;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo"><i>{ }</i>JSON Viewer</div>
+      <span class="tag">Format · Search · Explore — handles huge files</span
+      ><span class="sp"></span>
+      <button id="bTheme" aria-label="Toggle theme">☾ / ☀</button>
+    </header>
+    <noscript><p class="empty">JavaScript is required.</p></noscript>
+    <main>
+      <section class="card" aria-label="JSON input">
+        <div class="ch">
+          <h2>JSON INPUT</h2>
+          <button id="bOpen">Open</button><button id="bSample">Sample</button>
+          <select id="ind" aria-label="Indent">
+            <option value="2">2 spaces</option>
+            <option value="4">4 spaces</option>
+            <option value="t">Tab</option>
+          </select>
+          <label class="ck"
+            ><input type="checkbox" id="sortk" />Sort keys</label
+          >
+          <button id="bFmt" class="pri">Beautify</button
+          ><button id="bMin">Minify</button><button id="bCopy">Copy</button
+          ><button id="bDl">Download</button>
+          <input
+            type="file"
+            id="file"
+            accept=".json,.txt,application/json,text/plain"
+            hidden
+          />
+        </div>
+        <textarea
+          id="ta"
+          spellcheck="false"
+          autocomplete="off"
+          autocapitalize="off"
+          aria-label="Paste JSON here"
+          placeholder="Paste JSON here — or drop a file anywhere.&#10;Handles comments, trailing commas, single quotes and stringified JSON automatically."
+        ></textarea>
+        <div id="err" role="status"></div>
+      </section>
+      <div class="col">
+        <section class="card" aria-label="Tree">
+          <div class="ch" style="--c: var(--cy)">
+            <h2>TREE</h2>
+            <button id="bExp">Expand all</button
+            ><button id="bCol">Collapse</button>
+            <select id="lvl" aria-label="Expand to level">
+              <option value="">Level…</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+            </select>
+          </div>
+          <div class="sb">
+            <input
+              id="q"
+              type="search"
+              placeholder="Search…  key · value · data.data.role · items[0].name · users.*.id · role=admin"
+              spellcheck="false"
+              aria-label="Search"
+            />
+            <select id="scope" aria-label="Search scope">
+              <option value="all">All</option>
+              <option value="key">Keys</option>
+              <option value="val">Values</option>
+            </select>
+            <button id="cs" title="Case sensitive" aria-pressed="false">
+              Aa</button
+            ><button id="bPrev" aria-label="Previous match">↑</button
+            ><span id="cnt"></span
+            ><button id="bNext" aria-label="Next match">↓</button>
+          </div>
+          <div id="vp" tabindex="0" aria-label="JSON tree">
+            <div id="sp"><div id="rows" role="tree"></div></div>
+          </div>
+        </section>
+        <section class="card" aria-label="Details">
+          <div class="ch" style="--c: var(--pk)">
+            <h2>DETAILS</h2>
+            <span class="tabs"
+              ><button id="tD" class="on">Node</button
+              ><button id="tM">Matches</button></span
+            >
+          </div>
+          <div class="pane" id="pD">
+            <div class="hint">
+              Hover or click any field to see its full path, type and value.
+              Click a breadcrumb to jump to a parent.
+            </div>
+          </div>
+          <div class="pane" id="pM" hidden>
+            <span class="hint">Search results appear here.</span>
+          </div>
+        </section>
+      </div>
+    </main>
+    <footer>
+      <span id="st" aria-live="polite">Ready</span><span class="sp"></span
+      ><span>Processed locally · nothing is uploaded</span>
+    </footer>
+    <script>
+      /*W*/ const WORKER = function () {
+        let root = null,
+          rows = [],
+          hits = [],
+          hs = new Set(),
+          tok = 0,
+          pin = null,
+          shown = null,
+          hi = -1;
+        const mk = (k, v, p) => {
+          const t = v === null ? "null" : Array.isArray(v) ? "array" : typeof v;
+          return {
+            k,
+            v,
+            p,
+            t,
+            d: p ? p.d + 1 : 0,
+            open: false,
+            ch: null,
+            ps: null,
+            n:
+              t === "array"
+                ? v.length
+                : t === "object"
+                  ? Object.keys(v).length
+                  : 0,
+          };
+        };
+        const kids = (n) =>
+          n.ch ||
+          (n.ch =
+            n.t === "array"
+              ? n.v.map((x, i) => mk(i, x, n))
+              : Object.keys(n.v).map((k) => mk(k, n.v[k], n)));
+        const flat = () => {
+          rows = [];
+          (function w(n) {
+            rows.push(n);
+            if (n.open && n.n) {
+              const c = kids(n);
+              for (let i = 0; i < c.length; i++) w(c[i]);
+            }
+          })(root);
+        };
+        const segs = (n) => {
+          const a = [];
+          for (; n && n.p; n = n.p) a.push(n.k);
+          return a.reverse();
+        };
+        const pstr = (s, jp) => {
+          let r = jp ? "$" : "";
+          s.forEach((k, i) => {
+            if (typeof k === "number") r += "[" + k + "]";
+            else if (/^[\w$]+$/.test(k)) r += (i || jp ? "." : "") + k;
+            else r += '["' + k + '"]';
+          });
+          return r || "$";
+        };
+        const nps = (n) => n.ps || (n.ps = pstr(segs(n), 1));
+        const tr = (s, m) => (s.length > m ? s.slice(0, m) + "…" : s);
+        const meta = () => ({
+          rows: rows.length,
+          pinI: pin ? rows.indexOf(pin) : -1,
+        });
+        const sk = (v) => {
+          if (Array.isArray(v)) return v.map(sk);
+          if (v && typeof v === "object") {
+            const o = {};
+            for (const k of Object.keys(v).sort()) o[k] = sk(v[k]);
+            return o;
+          }
+          return v;
+        };
+        function repair(s) {
+          let o = "",
+            i = 0;
+          const L = s.length;
+          while (i < L) {
+            const c = s[i];
+            if (c === '"' || c === "'") {
+              let j = i + 1,
+                b = "";
+              while (j < L && s[j] !== c) {
+                if (s[j] === "\\") {
+                  b += s[j] + (s[j + 1] || "");
+                  j += 2;
+                } else {
+                  b += s[j] === '"' && c === "'" ? '\\"' : s[j];
+                  j++;
+                }
+              }
+              o += '"' + b + '"';
+              i = j + 1;
+            } else if (c === "/" && s[i + 1] === "/") {
+              while (i < L && s[i] !== "\n") i++;
+            } else if (c === "/" && s[i + 1] === "*") {
+              const e = s.indexOf("*/", i + 2);
+              i = e < 0 ? L : e + 2;
+            } else if (c === "}" || c === "]") {
+              o = o.replace(/,\s*$/, "") + c;
+              i++;
+            } else {
+              o += c;
+              i++;
+            }
+          }
+          return o;
+        }
+        function ser(v, d, b) {
+          if (v === null || typeof v !== "object") {
+            const t = JSON.stringify(v);
+            b.n -= t.length;
+            return t;
+          }
+          const a = Array.isArray(v),
+            ks = a ? null : Object.keys(v),
+            len = a ? v.length : ks.length;
+          if (!len) return a ? "[]" : "{}";
+          const p = "  ".repeat(d + 1);
+          let o = a ? "[" : "{";
+          for (let i = 0; i < len; i++) {
+            if (b.n <= 0) {
+              o += "\n" + p + "… " + (len - i) + " more";
+              break;
+            }
+            const k = a ? i : ks[i];
+            o +=
+              "\n" +
+              p +
+              (a ? "" : JSON.stringify(k) + ": ") +
+              ser(v[k], d + 1, b) +
+              (i < len - 1 ? "," : "");
+            b.n -= p.length + 4;
+          }
+          return o + "\n" + "  ".repeat(d) + (a ? "]" : "}");
+        }
+        function detail(n) {
+          shown = n;
+          const s = segs(n);
+          let v;
+          if (n.t === "string") v = tr(n.v, 30000);
+          else if (n.t === "object" || n.t === "array")
+            v = ser(n.v, 0, { n: 20000 });
+          else v = String(n.v);
+          return {
+            s,
+            t: n.t,
+            n: n.n,
+            d: n.d,
+            dot: pstr(s, 0),
+            jp: pstr(s, 1),
+            len: n.t === "string" ? n.v.length : 0,
+            v,
+          };
+        }
+        function reveal(s) {
+          let n = root;
+          for (const k of s) {
+            n.open = true;
+            const c = kids(n);
+            n = n.t === "array" ? c[+k] : c.find((x) => x.k === k);
+            if (!n) return null;
+          }
+          flat();
+          return n;
+        }
+        function lvl(L, cap) {
+          let c = 0,
+            cut = false;
+          (function w(n) {
+            if (!n.n) return;
+            if (c >= cap) {
+              n.open = false;
+              cut = true;
+              return;
+            }
+            n.open = n.d < L;
+            if (n.open) {
+              c += n.n;
+              for (const x of kids(n)) w(x);
+            }
+          })(root);
+          flat();
+          return cut;
+        }
+        function pq(q, cs) {
+          const eq = q.indexOf("=");
+          let l = q,
+            val = null;
+          if (eq > 0) {
+            l = q.slice(0, eq).trim();
+            val = q.slice(eq + 1).trim();
+          }
+          const path = eq > 0 || /[.\[*$]/.test(l);
+          let sg = null;
+          if (path) {
+            sg = l
+              .replace(/^\$\.?/, "")
+              .replace(/\["?([^\]"]*)"?\]/g, ".$1")
+              .split(".")
+              .filter((x) => x !== "");
+            if (!cs) sg = sg.map((x) => x.toLowerCase());
+          }
+          return {
+            path,
+            sg,
+            l: cs ? l : l.toLowerCase(),
+            val: val === null ? null : cs ? val : val.toLowerCase(),
+          };
+        }
+        const H = {
+          async parse({ text, file }) {
+            const t0 = performance.now();
+            if (file) text = await file.text();
+            text = text.replace(/^\uFEFF/, "");
+            let v,
+              fixed = 0,
+              un = 0;
+            try {
+              v = JSON.parse(text);
+            } catch (e) {
+              try {
+                v = JSON.parse(repair(text));
+                fixed = 1;
+              } catch (_) {
+                const m = /position (\d+)/.exec(e.message),
+                  lc = /line (\d+) column (\d+)/.exec(e.message);
+                let line,
+                  col,
+                  pos = m ? +m[1] : null;
+                if (m) {
+                  const pre = text.slice(0, pos).split("\n");
+                  line = pre.length;
+                  col = pre[pre.length - 1].length + 1;
+                } else if (lc) {
+                  line = +lc[1];
+                  col = +lc[2];
+                }
+                return { ok: 0, msg: e.message, line, col, pos };
+              }
+            }
+            while (typeof v === "string" && un < 3 && /^\s*[\[{]/.test(v)) {
+              try {
+                v = JSON.parse(v);
+                un++;
+              } catch (_) {
+                break;
+              }
+            }
+            root = mk("$", v, null);
+            root.open = true;
+            pin = shown = null;
+            hits = [];
+            hs = new Set();
+            hi = -1;
+            flat();
+            return {
+              ok: 1,
+              ...meta(),
+              t: root.t,
+              n: root.n,
+              size: text.length,
+              ms: Math.round(performance.now() - t0),
+              fixed,
+              un,
+              prec: /[:\[,]\s*-?\d{17,}\s*[,\]}]/.test(
+                text.length > 5e7 ? text.slice(0, 5e7) : text,
+              ),
+            };
+          },
+          win({ a, b }) {
+            const o = [],
+              cp = hi >= 0 && hits[hi] ? hits[hi].ps : null;
+            for (let i = a; i < Math.min(b, rows.length); i++) {
+              const n = rows[i];
+              let v;
+              switch (n.t) {
+                case "string":
+                  v = tr(n.v, 200);
+                  break;
+                case "object":
+                case "array":
+                  v = n.n;
+                  break;
+                default:
+                  v = String(n.v);
+              }
+              let f = 0;
+              if (n === pin) f |= 1;
+              if (hs.size) {
+                const p = nps(n);
+                if (hs.has(p)) f |= 2;
+                if (p === cp) f |= 4;
+              }
+              o.push({
+                d: n.d,
+                k: n.p ? String(n.k) : "$",
+                t: n.t,
+                v,
+                o: n.open,
+                n: n.n,
+                f,
+              });
+            }
+            return o;
+          },
+          toggle({ i, force }) {
+            const n = rows[i];
+            if (n && n.n) {
+              n.open = force === undefined ? !n.open : force;
+              flat();
+            }
+            return meta();
+          },
+          level({ L, cap }) {
+            const cut = lvl(L, cap);
+            return { ...meta(), cut };
+          },
+          detail({ i }) {
+            return rows[i] ? detail(rows[i]) : null;
+          },
+          pin({ i }) {
+            pin = rows[i] || null;
+            return pin ? { ...detail(pin), ...meta() } : meta();
+          },
+          parent({ i }) {
+            return rows.indexOf(rows[i].p);
+          },
+          goto({ s }) {
+            const n = reveal(s);
+            if (!n) return null;
+            pin = n;
+            return { i: rows.indexOf(n), ...detail(n), ...meta() };
+          },
+          jump({ h }) {
+            hi = h;
+            const n = reveal(hits[h].s);
+            if (!n) return null;
+            pin = n;
+            return { i: rows.indexOf(n), ...detail(n), ...meta() };
+          },
+          copy({ k }) {
+            if (!shown) return "";
+            const s = segs(shown);
+            return k === "p"
+              ? pstr(s, 0)
+              : k === "j"
+                ? pstr(s, 1)
+                : shown.t === "string"
+                  ? shown.v
+                  : JSON.stringify(shown.v, null, 2);
+          },
+          fmt({ ind, sort, min }) {
+            if (!root) return "";
+            const v = sort ? sk(root.v) : root.v;
+            return JSON.stringify(v, null, min ? undefined : ind);
+          },
+          search({ q, scope, cs }) {
+            const my = ++tok;
+            hits = [];
+            hs = new Set();
+            hi = -1;
+            if (!q || !root) {
+              postMessage({ ev: "sr", count: 0, done: 1, list: [] });
+              return 1;
+            }
+            const P = pq(q, cs),
+              L = (s) => (cs ? s : s.toLowerCase()),
+              stack = [[root.v, "$", null]],
+              t0 = performance.now();
+            function ok(it) {
+              const v = it[0],
+                k = it[1];
+              if (!it[2]) return false;
+              if (P.path) {
+                let x = it;
+                for (let j = P.sg.length - 1; j >= 0; j--) {
+                  if (!x || !x[2]) return false;
+                  if (P.sg[j] !== "*" && L(String(x[1])) !== P.sg[j])
+                    return false;
+                  x = x[2];
+                }
+                if (P.val !== null) {
+                  if (v !== null && typeof v === "object") return false;
+                  return L(String(v)).includes(P.val);
+                }
+                return true;
+              }
+              if (
+                scope !== "val" &&
+                typeof k === "string" &&
+                L(k).includes(P.l)
+              )
+                return true;
+              if (
+                scope !== "key" &&
+                (v === null || typeof v !== "object") &&
+                L(String(v)).includes(P.l)
+              )
+                return true;
+              return false;
+            }
+            function chunk() {
+              if (my !== tok) return;
+              let c = 0;
+              while (stack.length && c < 30000 && hits.length < 20000) {
+                const it = stack.pop();
+                c++;
+                if (ok(it)) {
+                  const s = [];
+                  for (let x = it; x && x[2]; x = x[2]) s.push(x[1]);
+                  s.reverse();
+                  const v = it[0];
+                  hits.push({
+                    s,
+                    ps: pstr(s, 1),
+                    pv:
+                      v !== null && typeof v === "object"
+                        ? Array.isArray(v)
+                          ? "[…]"
+                          : "{…}"
+                        : tr(JSON.stringify(v), 50),
+                  });
+                }
+                const v = it[0];
+                if (v !== null && typeof v === "object") {
+                  if (Array.isArray(v)) {
+                    for (let i = v.length - 1; i >= 0; i--)
+                      stack.push([v[i], i, it]);
+                  } else {
+                    const ks = Object.keys(v);
+                    for (let i = ks.length - 1; i >= 0; i--)
+                      stack.push([v[ks[i]], ks[i], it]);
+                  }
+                }
+              }
+              const done = !stack.length || hits.length >= 20000;
+              if (done) hits.forEach((h) => hs.add(h.ps));
+              postMessage({
+                ev: "sr",
+                count: hits.length,
+                done: done ? 1 : 0,
+                capped: hits.length >= 20000,
+                ms: Math.round(performance.now() - t0),
+                list: hits
+                  .slice(0, 300)
+                  .map((h) => ({ p: pstr(h.s, 0), pv: h.pv })),
+              });
+              if (!done) setTimeout(chunk, 0);
+            }
+            chunk();
+            return 1;
+          },
+        };
+        onmessage = async (e) => {
+          const { id, t, a } = e.data;
+          try {
+            postMessage({ id, r: await H[t](a) });
+          } catch (err) {
+            postMessage({
+              id,
+              r: { ok: 0, msg: String((err && err.message) || err) },
+            });
+          }
+        };
+      }; /*E*/
+    </script>
+    <script>
+      const $ = (s) => document.querySelector(s),
+        RH = 26;
+      const wk = new Worker(
+        URL.createObjectURL(
+          new Blob(["(" + WORKER + ")()"], { type: "text/javascript" }),
+        ),
+      );
+      let rid = 0;
+      const pend = {},
+        evt = {};
+      wk.onmessage = (e) => {
+        const d = e.data;
+        if (d.ev) {
+          evt[d.ev] && evt[d.ev](d);
+          return;
+        }
+        const f = pend[d.id];
+        delete pend[d.id];
+        f && f(d.r);
+      };
+      wk.onerror = (e) =>
+        status("Worker error: " + (e.message || "out of memory?"), 0, 1);
+      const call = (t, a) =>
+        new Promise((r) => {
+          pend[++rid] = r;
+          wk.postMessage({ id: rid, t, a });
+        });
+      const esc = (s) =>
+        String(s).replace(
+          /[&<>"]/g,
+          (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
+        );
+      const fmtB = (n) =>
+        n > 1e6
+          ? (n / 1e6).toFixed(1) + " MB"
+          : n > 1e3
+            ? (n / 1e3).toFixed(1) + " KB"
+            : n + " B";
+      let st = { rows: 0, pinI: -1 },
+        ver = 0,
+        win = [],
+        winA = 0,
+        raf = 0,
+        curSegs = [],
+        hiCur = -1,
+        hitN = 0,
+        dirty = null,
+        loaded = false;
+      function status(s, busy, bad) {
+        const e = $("#st");
+        e.textContent = s;
+        e.className = busy ? "busy" : "";
+        e.style.color = bad ? "var(--er)" : "";
+      }
+      const upd = (r) => {
+        if (r && r.rows !== undefined) {
+          st.rows = r.rows;
+          st.pinI = r.pinI;
+        }
+      };
+
+      async function render() {
+        const my = ++ver,
+          vp = $("#vp"),
+          a = Math.max(0, Math.floor(vp.scrollTop / RH) - 10),
+          b = Math.min(
+            st.rows,
+            Math.ceil((vp.scrollTop + vp.clientHeight) / RH) + 10,
+          );
+        $("#sp").style.height = st.rows * RH + "px";
+        if (!st.rows) {
+          $("#rows").innerHTML =
+            '<div class="empty">Paste or drop JSON to begin</div>';
+          return;
+        }
+        const r = await call("win", { a, b });
+        if (my !== ver) return;
+        win = r;
+        winA = a;
+        let s = "";
+        r.forEach((n, j) => {
+          const i = a + j;
+          let c = "r";
+          if (n.f & 1) c += " pin";
+          if (n.f & 2) c += " hit";
+          if (n.f & 4) c += " cur";
+          let v;
+          switch (n.t) {
+            case "string":
+              v = '<span class="s">"' + esc(n.v) + '"</span>';
+              break;
+            case "number":
+              v = '<span class="n">' + esc(n.v) + "</span>";
+              break;
+            case "boolean":
+              v = '<span class="b">' + n.v + "</span>";
+              break;
+            case "null":
+              v = '<span class="z">null</span>';
+              break;
+            case "array":
+              v =
+                '<span class="dim">[] ' +
+                n.n +
+                " item" +
+                (n.n == 1 ? "" : "s") +
+                "</span>";
+              break;
+            default:
+              v =
+                '<span class="dim">{} ' +
+                n.n +
+                " key" +
+                (n.n == 1 ? "" : "s") +
+                "</span>";
+          }
+          s +=
+            '<div class="' +
+            c +
+            '" role="treeitem" aria-level="' +
+            (n.d + 1) +
+            '"' +
+            (n.n ? ' aria-expanded="' + n.o + '"' : "") +
+            ' data-i="' +
+            i +
+            '" style="padding-left:' +
+            (n.d * 16 + 6) +
+            'px"><span class="tg">' +
+            (n.n ? (n.o ? "▾" : "▸") : "") +
+            '</span><span class="k">' +
+            esc(n.k) +
+            '</span><span class="dim">: </span>' +
+            v +
+            "</div>";
+        });
+        const el = $("#rows");
+        el.style.transform = "translateY(" + a * RH + "px)";
+        el.innerHTML = s;
+      }
+      const sched = () => {
+        if (!raf)
+          raf = requestAnimationFrame(() => {
+            raf = 0;
+            render();
+          });
+      };
+      $("#vp").addEventListener("scroll", sched);
+      addEventListener("resize", sched);
+
+      function showD(d) {
+        if (!d) return;
+        curSegs = d.s;
+        let c = '<span class="cr" data-c="0">$</span>';
+        d.s.forEach(
+          (k, i) =>
+            (c +=
+              '<span class="sep">›</span><span class="cr" data-c="' +
+              (i + 1) +
+              '">' +
+              esc(k) +
+              "</span>"),
+        );
+        const kind =
+          d.t === "array"
+            ? "array · " + d.n + " items"
+            : d.t === "object"
+              ? "object · " + d.n + " keys"
+              : d.t === "string"
+                ? "string · " + d.len + " chars"
+                : d.t;
+        $("#pD").innerHTML =
+          '<div class="crumbs">' +
+          c +
+          '</div><div class="meta"><span>Type</span><span>' +
+          esc(kind) +
+          "</span><span>Depth</span><span>" +
+          d.d +
+          "</span><span>Path</span><code>" +
+          esc(d.dot) +
+          "</code><span>JSONPath</span><code>" +
+          esc(d.jp) +
+          '</code></div><div class="acts"><button data-cp="p">Copy path</button><button data-cp="j">Copy JSONPath</button><button data-cp="v">Copy value</button></div><pre class="val" dir="auto">' +
+          esc(d.v) +
+          "</pre>";
+      }
+      const view = (i) => {
+        const vp = $("#vp");
+        vp.scrollTop = Math.max(0, i * RH - vp.clientHeight / 2);
+      };
+      function ensureVis(i) {
+        const vp = $("#vp"),
+          h = vp.clientHeight;
+        if (i * RH < vp.scrollTop) vp.scrollTop = i * RH;
+        else if ((i + 1) * RH > vp.scrollTop + h)
+          vp.scrollTop = (i + 1) * RH - h;
+      }
+      async function toggle(i, force) {
+        upd(await call("toggle", { i, force }));
+        render();
+      }
+      async function pinAt(i) {
+        const r = await call("pin", { i });
+        upd(r);
+        showD(r);
+        render();
+      }
+
+      const R = $("#rows");
+      let hv = -1,
+        hvBusy = false;
+      R.addEventListener("mouseover", async (e) => {
+        const r = e.target.closest(".r");
+        if (!r || st.pinI >= 0 || hvBusy) return;
+        const i = +r.dataset.i;
+        if (i === hv) return;
+        hv = i;
+        hvBusy = true;
+        const d = await call("detail", { i });
+        hvBusy = false;
+        if (st.pinI < 0) showD(d);
+      });
+      R.addEventListener("click", (e) => {
+        const r = e.target.closest(".r");
+        if (!r) return;
+        const i = +r.dataset.i;
+        if (e.target.classList.contains("tg")) toggle(i);
+        else pinAt(i);
+      });
+      R.addEventListener("dblclick", (e) => {
+        const r = e.target.closest(".r");
+        if (r) toggle(+r.dataset.i);
+      });
+      $("#vp").addEventListener("keydown", async (e) => {
+        if (!/^Arrow/.test(e.key) || !st.rows) return;
+        e.preventDefault();
+        let i = st.pinI < 0 ? 0 : st.pinI;
+        const rw = win[i - winA];
+        if (e.key === "ArrowDown") i = Math.min(st.rows - 1, i + 1);
+        else if (e.key === "ArrowUp") i = Math.max(0, i - 1);
+        else if (e.key === "ArrowRight") {
+          if (rw && rw.n && !rw.o) {
+            await toggle(i, true);
+            return;
+          }
+          i = Math.min(st.rows - 1, i + 1);
+        } else {
+          if (rw && rw.o) {
+            await toggle(i, false);
+            return;
+          }
+          const p = await call("parent", { i });
+          if (p < 0) return;
+          i = p;
+        }
+        ensureVis(i);
+        await pinAt(i);
+      });
+      $("#pD").addEventListener("click", async (e) => {
+        const c = e.target.closest(".cr");
+        if (c) {
+          const r = await call("goto", { s: curSegs.slice(0, +c.dataset.c) });
+          if (r) {
+            upd(r);
+            view(r.i);
+            showD(r);
+            render();
+          }
+          return;
+        }
+        const b = e.target.closest("[data-cp]");
+        if (b) copy(await call("copy", { k: b.dataset.cp }));
+      });
+
+      /* expand / collapse */
+      async function level(L) {
+        if (!st.rows) return;
+        status("Working…", 1);
+        const r = await call("level", { L, cap: 150000 });
+        upd(r);
+        status(
+          r.cut
+            ? "Expanded partially (very large) — use Level or search to go deeper"
+            : "Done",
+        );
+        render();
+      }
+      $("#bExp").onclick = () => level(Infinity);
+      $("#bCol").onclick = async () => {
+        await level(1);
+        $("#vp").scrollTop = 0;
+      };
+      $("#lvl").onchange = (e) => {
+        if (e.target.value) level(+e.target.value);
+        e.target.value = "";
+      };
+
+      /* search */
+      function runSearch() {
+        const q = $("#q").value.trim();
+        hiCur = -1;
+        hitN = 0;
+        if (q) status("Searching…", 1);
+        call("search", {
+          q,
+          scope: $("#scope").value,
+          cs: $("#cs").classList.contains("on"),
+        });
+      }
+      evt.sr = async (d) => {
+        hitN = d.count;
+        $("#cnt").textContent = d.count
+          ? (hiCur >= 0 ? hiCur + 1 : "–") +
+            " / " +
+            d.count +
+            (d.capped ? "+" : "")
+          : $("#q").value
+            ? "0"
+            : "";
+        $("#pM").innerHTML = d.list.length
+          ? d.list
+              .map(
+                (h, i) =>
+                  '<div class="res" data-h="' +
+                  i +
+                  '" title="' +
+                  esc(h.p) +
+                  '"><span class="k">' +
+                  esc(h.p) +
+                  '</span> <span class="dim">' +
+                  esc(h.pv) +
+                  "</span></div>",
+              )
+              .join("") +
+            (d.count > 300
+              ? '<div class="hint">+' +
+                (d.count - 300) +
+                " more — refine the query or use ↑/↓</div>"
+              : "")
+          : '<span class="hint">' +
+            ($("#q").value ? "No matches." : "Search results appear here.") +
+            "</span>";
+        if (d.done) {
+          status(
+            d.count + (d.capped ? "+" : "") + " matches · " + d.ms + " ms",
+          );
+          if (d.count) jump(0);
+          else render();
+        } else status(d.count + " matches so far…", 1);
+      };
+      async function jump(h) {
+        if (!hitN) return;
+        hiCur = (h + hitN) % hitN;
+        const r = await call("jump", { h: hiCur });
+        if (!r) return;
+        upd(r);
+        view(r.i);
+        showD(r);
+        $("#cnt").textContent = hiCur + 1 + " / " + hitN;
+        render();
+      }
+      let qt;
+      $("#q").addEventListener("input", () => {
+        clearTimeout(qt);
+        qt = setTimeout(runSearch, 250);
+      });
+      $("#q").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          jump(hiCur + (e.shiftKey ? -1 : 1));
+        }
+      });
+      $("#scope").onchange = runSearch;
+      $("#cs").onclick = (e) => {
+        const b = e.currentTarget;
+        b.classList.toggle("on");
+        b.setAttribute("aria-pressed", b.classList.contains("on"));
+        runSearch();
+      };
+      $("#bNext").onclick = () => jump(hiCur + 1);
+      $("#bPrev").onclick = () => jump(hiCur < 0 ? -1 : hiCur - 1);
+      $("#pM").addEventListener("click", (e) => {
+        const d = e.target.closest(".res");
+        if (d) jump(+d.dataset.h);
+      });
+      const tabs = (m) => {
+        $("#pD").hidden = m;
+        $("#pM").hidden = !m;
+        $("#tD").classList.toggle("on", !m);
+        $("#tM").classList.toggle("on", m);
+      };
+      $("#tD").onclick = () => tabs(false);
+      $("#tM").onclick = () => tabs(true);
+      addEventListener("keydown", (e) => {
+        if (
+          e.key === "/" &&
+          !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)
+        ) {
+          e.preventDefault();
+          $("#q").focus();
+        }
+      });
+
+      /* load / format */
+      function handle(r, explicit, text) {
+        const er = $("#err");
+        if (!r.ok) {
+          loaded = false;
+          er.className = "";
+          er.textContent =
+            "✖ " +
+            r.msg +
+            (r.line && !/line \d/.test(r.msg)
+              ? " (line " + r.line + ", col " + r.col + ")"
+              : "");
+          status("Invalid JSON", 0, 1);
+          if (explicit && r.pos != null && text) {
+            const ta = $("#ta");
+            ta.focus();
+            ta.setSelectionRange(r.pos, Math.min(r.pos + 1, text.length));
+          }
+          return false;
+        }
+        loaded = true;
+        upd(r);
+        er.className = "ok";
+        er.textContent =
+          "✔ Valid JSON" +
+          (r.fixed
+            ? " — auto-fixed comments / trailing commas / single quotes"
+            : "") +
+          (r.un ? " — unwrapped stringified JSON" : "");
+        let s =
+          r.t +
+          (r.n
+            ? " · " + r.n + " " + (r.t === "array" ? "items" : "keys")
+            : "") +
+          " · " +
+          fmtB(r.size) +
+          " · parsed in " +
+          r.ms +
+          " ms";
+        if (r.prec) s += " · ⚠ integers over 15 digits may lose precision";
+        status(s);
+        $("#vp").scrollTop = 0;
+        hiCur = -1;
+        render();
+        call("detail", { i: 0 }).then(showD);
+        if ($("#q").value.trim()) runSearch();
+        return true;
+      }
+      async function parseText(explicit) {
+        clearTimeout(dirty);
+        dirty = null;
+        const t = $("#ta").value;
+        if (!t.trim()) {
+          $("#err").textContent = "";
+          return;
+        }
+        status("Parsing…", 1);
+        return handle(await call("parse", { text: t }), explicit, t);
+      }
+      const ensure = async () => {
+        if (dirty) await parseText();
+      };
+      $("#ta").addEventListener("input", () => {
+        clearTimeout(dirty);
+        dirty = setTimeout(() => parseText(), 450);
+      });
+      $("#ta").addEventListener("paste", () => {
+        clearTimeout(dirty);
+        dirty = setTimeout(() => parseText(1), 0);
+      });
+      async function openFile(f) {
+        if (!f) return;
+        status("Reading " + f.name + "…", 1);
+        const ta = $("#ta");
+        if (f.size < 1.5e6) {
+          ta.value = await f.text();
+          await parseText(1);
+        } else {
+          ta.value = "";
+          ta.placeholder =
+            'Large file "' +
+            f.name +
+            '" (' +
+            fmtB(f.size) +
+            ") loaded into the tree. Too big for the text editor — use Beautify / Copy / Download for output.";
+          handle(await call("parse", { file: f }), 0);
+        }
+      }
+      $("#bOpen").onclick = () => $("#file").click();
+      $("#file").onchange = (e) => {
+        openFile(e.target.files[0]);
+        e.target.value = "";
+      };
+      addEventListener("dragover", (e) => {
+        e.preventDefault();
+        document.body.classList.add("drag");
+      });
+      addEventListener("dragleave", (e) => {
+        if (!e.relatedTarget) document.body.classList.remove("drag");
+      });
+      addEventListener("drop", (e) => {
+        e.preventDefault();
+        document.body.classList.remove("drag");
+        openFile(e.dataTransfer.files[0]);
+      });
+      const opts = (min) => ({
+        ind: $("#ind").value === "t" ? "\t" : +$("#ind").value,
+        sort: $("#sortk").checked,
+        min,
+      });
+      async function out(min) {
+        await ensure();
+        if (!loaded) {
+          if ($("#ta").value.trim()) await parseText(1);
+          if (!loaded) return null;
+        }
+        return call("fmt", opts(min));
+      }
+      async function format(min) {
+        const s = await out(min);
+        if (s == null) return;
+        if (s.length < 2e6) {
+          $("#ta").value = s;
+          await parseText();
+        } else
+          status(
+            "Result is too large for the editor — use Copy or Download",
+            0,
+          );
+      }
+      $("#bFmt").onclick = () => format(false);
+      $("#bMin").onclick = () => format(true);
+      async function copy(t) {
+        try {
+          await navigator.clipboard.writeText(t);
+        } catch (_) {
+          const x = document.createElement("textarea");
+          x.value = t;
+          document.body.appendChild(x);
+          x.select();
+          try {
+            document.execCommand("copy");
+          } catch (__) {}
+          x.remove();
+        }
+        status("Copied to clipboard");
+      }
+      $("#bCopy").onclick = async () => {
+        const s = await out(false);
+        if (s != null) copy(s);
+      };
+      $("#bDl").onclick = async () => {
+        const s = await out(false);
+        if (s == null) return;
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(
+          new Blob([s], { type: "application/json" }),
+        );
+        a.download = "data.json";
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+      };
+      const SAMPLE = {
+        status: "ok",
+        data: {
+          data: {
+            id: 101,
+            role: "admin",
+            active: true,
+            profile: { name: "Daksh", tags: ["js", "react"], address: null },
+          },
+          users: [
+            { id: 1, role: "editor", name: "Asha" },
+            { id: 2, role: "viewer", name: "Ravi" },
+            { id: 3, role: "admin", name: "Meera", meta: { score: 98.6 } },
+          ],
+        },
+        paging: { page: 1, total: 3 },
+      };
+      $("#bSample").onclick = () => {
+        $("#ta").value = JSON.stringify(SAMPLE, null, 2);
+        parseText();
+      };
+      let th = "dark";
+      try {
+        th = localStorage.getItem("jv-theme") || "dark";
+      } catch (_) {}
+      document.documentElement.dataset.theme = th;
+      $("#bTheme").onclick = () => {
+        th = th === "dark" ? "light" : "dark";
+        document.documentElement.dataset.theme = th;
+        try {
+          localStorage.setItem("jv-theme", th);
+        } catch (_) {}
+      };
+      $("#bSample").click();
+    </script>
+  </body>
+</html>
